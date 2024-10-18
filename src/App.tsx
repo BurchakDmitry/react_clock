@@ -3,14 +3,14 @@ import './App.scss';
 import { Clock } from './components/Clock';
 
 interface State {
-  today: string;
+  today: Date;
   hasClock: boolean;
   clockName: string;
 }
 
 export class App extends React.Component {
   state: Readonly<State> = {
-    today: new Date().toUTCString().slice(-12, -4),
+    today: new Date(),
     hasClock: true,
     clockName: 'Clock-0',
   };

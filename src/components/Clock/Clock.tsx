@@ -2,7 +2,7 @@ import React from 'react';
 
 interface Props {
   name: string;
-  today: string;
+  today: Date;
 }
 
 export class Clock extends React.Component<Props> {
@@ -12,7 +12,7 @@ export class Clock extends React.Component<Props> {
 
     if (dateChanged) {
       // eslint-disable-next-line no-console
-      console.log(this.props.today);
+      console.log(this.props.today.toUTCString().slice(-12, -4));
     }
 
     if (nameChanged) {
@@ -30,7 +30,9 @@ export class Clock extends React.Component<Props> {
 
         {' time is '}
 
-        <span className="Clock__time">{today}</span>
+        <span className="Clock__time">
+          {today.toUTCString().slice(-12, -4)}
+        </span>
       </div>
     );
   }
