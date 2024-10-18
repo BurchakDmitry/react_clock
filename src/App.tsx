@@ -1,37 +1,75 @@
 import React from 'react';
 import './App.scss';
+import { Clock } from './components/Clock';
 
-function getRandomName(): string {
-  const value = Date.now().toString().slice(-4);
-
-  return `Clock-${value}`;
+interface State {
+  today: string;
+  hasClock: boolean;
+  clockName: string;
 }
 
-export const App: React.FC = () => {
-  const today = new Date();
-  let clockName = 'Clock-0';
+export class App extends React.Component {
+  state: Readonly<State> = {
+    today: new Date().toUTCString().slice(-12, -4),
+    hasClock: true,
+    clockName: 'Clock-0',
+  };
 
-  // This code starts a timer
-  const timerId = window.setInterval(() => {
-    clockName = getRandomName();
-  }, 3300);
+  handleMouseClick = (event: MouseEvent) => {
+    event.preventDefault();
+    const { hasClock } = this.state;
 
-  // this code stops the timer
-  window.clearInterval(timerId);
+    if (event.type === 'contextmenu' && hasClock) {
+      this.setState({ hasClock: false });
 
-  return (
-    <div className="App">
-      <h1>React clock</h1>
+      return null;
+    }
 
-      <div className="Clock">
-        <strong className="Clock__name">{clockName}</strong>
+    if (event.type === 'click' && !hasClock) {
+      this.setState({ hasClock: true });
+    }
+  };
 
-        {' time is '}
+  getRandomName(): string {
+    const value = Date.now().toString().slice(-4);
 
-        <span className="Clock__time">
-          {today.toUTCString().slice(-12, -4)}
-        </span>
+    return `Clock-${value}`;
+  }
+
+  timerId() {
+    return window.setInterval(() => {
+      this.setState({ clockName: this.getRandomName() });
+    }, 3300);
+  }
+
+  currentDate() {
+    return window.setInterval(() => {
+      this.setState({ today: new Date() });
+    }, 1000);
+  }
+
+  componentDidMount() {
+    this.timerId();
+    this.currentDate();
+    window.addEventListener('click', this.handleMouseClick);
+    window.addEventListener('contextmenu', this.handleMouseClick);
+  }
+
+  componentWillUnmount() {
+    window.clearInterval(this.timerId());
+    window.clearInterval(this.currentDate());
+    window.removeEventListener('click', this.handleMouseClick);
+    window.removeEventListener('contextmenu', this.handleMouseClick);
+  }
+
+  render() {
+    const { today, hasClock, clockName } = this.state;
+
+    return (
+      <div className="App">
+        <h1>React clock</h1>
+        {hasClock && <Clock name={clockName} today={today} />}
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
