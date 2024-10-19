@@ -5,24 +5,40 @@ interface Props {
   today: Date;
 }
 
-export class Clock extends React.Component<Props> {
+interface State {
+  today: Date;
+}
+
+export class Clock extends React.Component<Props, State> {
+  state: State = {
+    today: new Date(),
+  };
+
+  dateId = 0;
+
+  componentDidMount(): void {
+    this.dateId = window.setInterval(() => {
+      this.setState({ today: new Date() }, () => {
+        //eslint-disable-next-line no-console
+        console.log(this.state.today.toUTCString().slice(-12, -4));
+      });
+    }, 1000);
+  }
+
   componentDidUpdate(prevProps: Readonly<Props>) {
-    const dateChanged = prevProps.today !== this.props.today;
-    const nameChanged = prevProps.name !== this.props.name;
-
-    if (dateChanged) {
-      // eslint-disable-next-line no-console
-      console.log(this.props.today.toUTCString().slice(-12, -4));
-    }
-
-    if (nameChanged) {
-      // eslint-disable-next-line no-console
+    if (prevProps.name !== this.props.name) {
+      //eslint-disable-next-line no-console
       console.warn(`Renamed from ${prevProps.name} to ${this.props.name}`);
     }
   }
 
+  componentWillUnmount(): void {
+    window.clearInterval(this.dateId);
+  }
+
   render() {
-    const { name, today } = this.props;
+    const { today } = this.state;
+    const { name } = this.props;
 
     return (
       <div className="Clock">

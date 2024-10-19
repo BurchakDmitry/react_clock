@@ -8,12 +8,14 @@ interface State {
   clockName: string;
 }
 
-export class App extends React.Component {
+export class App extends React.PureComponent {
   state: Readonly<State> = {
     today: new Date(),
     hasClock: true,
     clockName: 'Clock-0',
   };
+
+  timerId = 0;
 
   handleMouseClick = (event: MouseEvent) => {
     event.preventDefault();
@@ -36,28 +38,24 @@ export class App extends React.Component {
     return `Clock-${value}`;
   }
 
-  timerId() {
-    return window.setInterval(() => {
+  componentDidMount() {
+    document.addEventListener('contextmenu', (event: MouseEvent) => {
+      event.preventDefault();
+      this.setState({ showClock: false });
+    });
+    document.addEventListener('click', () => {
+      this.setState({ showClock: true });
+    });
+
+    this.timerId = window.setInterval(() => {
       this.setState({ clockName: this.getRandomName() });
     }, 3300);
-  }
-
-  currentDate() {
-    return window.setInterval(() => {
-      this.setState({ today: new Date() });
-    }, 1000);
-  }
-
-  componentDidMount() {
-    this.timerId();
-    this.currentDate();
     window.addEventListener('click', this.handleMouseClick);
     window.addEventListener('contextmenu', this.handleMouseClick);
   }
 
   componentWillUnmount() {
-    window.clearInterval(this.timerId());
-    window.clearInterval(this.currentDate());
+    window.clearInterval(this.timerId);
     window.removeEventListener('click', this.handleMouseClick);
     window.removeEventListener('contextmenu', this.handleMouseClick);
   }
